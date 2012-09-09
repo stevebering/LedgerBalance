@@ -22,8 +22,10 @@ namespace Meracord.Transactions.LedgerBalance
         public DateTime LastEditDateTime { get; set; }
     }
 
-    public abstract class ParentTransaction : Transaction
+    public abstract class ParentTransaction
     {
+        public Transaction Parent { get; set; }
+
         private readonly IList<Transaction> _children = new List<Transaction>();
         public IEnumerable<Transaction> Children { get { return _children; } }
 

@@ -15,28 +15,39 @@ namespace Meracord.Transactions.LedgerBalance.Filters
 
             var feesWithMatchingAllocation = meracordFees.Where(meracordFee => assessedFees.Any(assessedFee => FeesMatch(meracordFee, assessedFee)));
 
-            return transactions.Except(feesWithMatchingAllocation);
+            var remainingTransactions = transactions.Except(feesWithMatchingAllocation);
+
+            // remove fees that are not from and to the same account
+
+            // update the transaction amount if part of the fee was paid by the service provider
+
+
+            return remainingTransactions;
         }
 
         private bool FeesMatch(Transaction meracordFee, Transaction assessedFee)
         {
             if (meracordFee.ParentTransactionId != assessedFee.ParentTransactionId)
             {
+                // they would have the same parents, if they match
                 return false;
             }
 
             if (meracordFee.IsReversed != assessedFee.IsReversed)
             {
+                // either none or both would be reversed if they match
                 return false;
             }
 
             if (meracordFee.Amount > (assessedFee.Amount * -1))
             {
+                // if the amounts are not comparable, it doesn't match
                 return false;
             }
 
             if (assessedFee.DisbursementAccountId == 2)
             {
+                // if doesn't count if the fee was not assessed to the Meracord fee account
                 return false;
             }
 

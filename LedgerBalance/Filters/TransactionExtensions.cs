@@ -18,21 +18,25 @@ namespace Meracord.Transactions.LedgerBalance.Filters
                 if (PaymentTransaction.Qualifies(parent))
                 {
                     parentList.Add(new PaymentTransaction(parent, transactions));
+                    continue;
                 }
 
                 if (DisbursementTransaction.Qualifies(parent))
                 {
                     parentList.Add(new DisbursementTransaction(parent, transactions));
+                    continue;
                 }
 
                 if (AdjustmentTransaction.Qualifies(parent))
                 {
                     parentList.Add(new AdjustmentTransaction(parent, transactions));
+                    continue;
                 }
 
                 if (TransferTransaction.Qualifies(parent))
                 {
                     parentList.Add(new TransferTransaction(parent, transactions));
+                    continue;
                 }
             }
 

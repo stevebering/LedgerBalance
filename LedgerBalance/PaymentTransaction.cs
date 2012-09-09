@@ -7,33 +7,34 @@ namespace Meracord.Transactions.LedgerBalance
     {
         public PaymentTransaction(Transaction parent, IEnumerable<Transaction> transactions)
         {
-            this.TransactionId = parent.TransactionId;
-            this.ParentTransactionId = parent.ParentTransactionId;
-            this.TransactionGuid = parent.TransactionGuid;
-            this.AccountId = parent.AccountId;
-            this.DisbursementAccountId = parent.DisbursementAccountId;
-            this.ReceiptId = parent.ReceiptId;
-            this.TransactionTypeId = parent.TransactionTypeId;
-            this.Amount = parent.Amount;
-            this.IsReallocated = parent.IsReallocated;
-            this.IsClearedForGoodFunds = parent.IsClearedForGoodFunds;
-            this.IsReversed = parent.IsReversed;
-            this.TransactionTypeGuid = parent.TransactionTypeGuid;
-            this.AllocationTypeId = parent.AllocationTypeId;
-            this.CreationDateTime = parent.CreationDateTime;
-            this.LastEditDateTime = parent.LastEditDateTime;
-
+            this.Parent = parent;
             foreach (var child in transactions.Where(x => x.ParentTransactionId == parent.TransactionId))
             {
                 this.AddChild(child);
             }
         }
 
-
         public static bool Qualifies(Transaction t)
         {
             var validTypes = new[] { 601, 602, 603 };
             return validTypes.Any(v => v == t.TransactionTypeId);
+        }
+
+        public void Filter(IEnumerable<TransactionContextTransactionType> transactionTypes)
+        {
+            // get a list of transactions to remove, that are not available in the context
+            var transactionsFromThisAccount = from child in this.Children
+                                              join transactionType in transactionTypes
+                                                  on child.TransactionTypeId equals transactionType.TransactionTypeId
+                                              select child;
+
+            var transactionsToThisAccount = from child in this.Children
+                                            join transactionType in transactionTypes
+                                                on child.TransactionTypeId equals transactionType.TransactionTypeId
+                                            where transactionType.TransactionTypeId == 638
+                                            && child.AccountId == child.DisbursementAccountId
+                                            select child;
+
         }
     }
 }
