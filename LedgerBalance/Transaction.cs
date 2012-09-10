@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meracord.Transactions.LedgerBalance.Queries;
 
 namespace Meracord.Transactions.LedgerBalance
 {
@@ -31,9 +32,10 @@ namespace Meracord.Transactions.LedgerBalance
         private readonly IList<Transaction> _children = new List<Transaction>();
         public IEnumerable<Transaction> Children { get { return _children; } }
 
-        public void AddChild(Transaction transaction)
-        {
+        public void AddChild(Transaction transaction) {
             _children.Add(transaction);
         }
+
+        public abstract void FilterChildren(IGetTransactionContextTransactionsTypes transactionTypesQuery);
     }
 }

@@ -1,27 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
+using Meracord.Transactions.LedgerBalance.Queries;
 
 namespace Meracord.Transactions.LedgerBalance
 {
     public class PaymentTransaction : ParentTransaction
     {
-        public PaymentTransaction(Transaction parent, IEnumerable<Transaction> transactions)
-        {
+        public PaymentTransaction(Transaction parent, IEnumerable<Transaction> transactions) {
             this.Parent = parent;
-            foreach (var child in transactions.Where(x => x.ParentTransactionId == parent.TransactionId))
-            {
+            foreach (var child in transactions.Where(x => x.ParentTransactionId == parent.TransactionId)) {
                 this.AddChild(child);
             }
         }
 
-        public static bool Qualifies(Transaction t)
-        {
+        public static bool Qualifies(Transaction t) {
             var validTypes = new[] { 601, 602, 603 };
             return validTypes.Any(v => v == t.TransactionTypeId);
         }
 
-        public void Filter(IEnumerable<TransactionContextTransactionType> transactionTypes)
-        {
+        public void Filter(IEnumerable<TransactionContextTransactionType> transactionTypes) {
             // get a list of transactions to remove, that are not available in the context
             var transactionsFromThisAccount = from child in this.Children
                                               join transactionType in transactionTypes
@@ -35,6 +32,11 @@ namespace Meracord.Transactions.LedgerBalance
                                             && child.AccountId == child.DisbursementAccountId
                                             select child;
 
+        }
+
+        public override void FilterChildren(IGetTransactionContextTransactionsTypes transactionTypesQuery) {
+            var transactionTypes = transactionTypesQuery.FindForContext(1);
+            Filter(transactionTypes);
         }
     }
 }

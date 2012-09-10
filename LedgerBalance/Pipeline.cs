@@ -8,23 +8,19 @@ namespace Meracord.Transactions.LedgerBalance
     {
         private readonly IList<IOperation<T>> _operations = new List<IOperation<T>>();
 
-        public Pipeline<T> Register(IOperation<T> operation)
-        {
+        public Pipeline<T> Register(IOperation<T> operation) {
             _operations.Add(operation);
             return this;
         }
 
-        public void Execute()
-        {
+        public void Execute() {
             IEnumerable<T> current = new List<T>();
-            foreach (var operation in _operations)
-            {
-                using (var timer = new ProcessTimer())
-                {
+            foreach (var operation in _operations) {
+                using (var timer = new ProcessTimer()) {
                     current = operation.Execute(current);
                     var duration = timer.Complete();
                     Console.WriteLine("Operation '{0}' completed in {1:0.0 seconds}.", operation.GetType().Name,
-                                      duration);
+                                      duration.TotalSeconds);
                 }
             }
             IEnumerator<T> enumerator = current.GetEnumerator();

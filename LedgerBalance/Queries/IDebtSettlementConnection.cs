@@ -4,6 +4,6 @@ namespace Meracord.Transactions.LedgerBalance.Queries
 {
     public interface IDebtSettlementConnection
     {
-        SqlConnection Connection { get; }
+        SqlConnection CreateConnection();
     }
 }

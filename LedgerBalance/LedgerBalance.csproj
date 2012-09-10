@@ -69,11 +69,12 @@
     <Compile Include="ProcessTimer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\DebtManagerConnection.cs" />
-    <Compile Include="Queries\DebtSettlementConnection.cs" />
+    <Compile Include="Queries\DebtManagerConnectionFactory.cs" />
+    <Compile Include="Queries\DebtSettlementConnectionFactory.cs" />
     <Compile Include="Queries\GetCompleteAccountTransactionHistoryQuery.cs" />
-    <Compile Include="Queries\IDebtManagerConnection.cs" />
+    <Compile Include="Queries\IDebtManagerConnectionFactory.cs" />
     <Compile Include="Queries\IDebtSettlementConnection.cs" />
+    <Compile Include="Queries\IGetTransactionContextTransactionsTypes.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="TransactionBalancer.cs" />
     <Compile Include="TransactionContext.cs" />

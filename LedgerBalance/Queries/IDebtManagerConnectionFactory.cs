@@ -2,8 +2,8 @@ using System.Data.SqlClient;
 
 namespace Meracord.Transactions.LedgerBalance.Queries
 {
-    public interface IDebtManagerConnection
+    public interface IDebtManagerConnectionFactory
     {
-        SqlConnection Connection { get; }
+        SqlConnection CreateConnection();
     }
 }

@@ -6,16 +6,15 @@ namespace Meracord.Transactions.LedgerBalance.Operations
     public class TransactionPipeline
         : Pipeline<Transaction>
     {
-        private readonly DebtSettlementConnection _debtSettlementConnection;
-        private readonly DebtManagerConnection _debtManagerConnection;
+        private readonly DebtSettlementConnectionFactory _debtSettlementConnectionFactory;
+        private readonly DebtManagerConnectionFactory _debtManagerConnectionFactory;
 
-        public TransactionPipeline(Guid accountId)
-        {
-            _debtSettlementConnection = new DebtSettlementConnection();
-            _debtManagerConnection = new DebtManagerConnection();
+        public TransactionPipeline(Guid accountId) {
+            _debtSettlementConnectionFactory = new DebtSettlementConnectionFactory();
+            _debtManagerConnectionFactory = new DebtManagerConnectionFactory();
 
             // get our first input element with the full list of transactions
-            Register(new GetCompleteAccountTransactionHistoryQuery(_debtSettlementConnection, accountId));
+            Register(new GetCompleteAccountTransactionHistoryQuery(_debtSettlementConnectionFactory, accountId));
 
             Register(new FilterForNonReversedFeesIncreasingConsumerReserves());
             Register(new FilterForAssessedProcessingFee());
@@ -25,11 +24,11 @@ namespace Meracord.Transactions.LedgerBalance.Operations
             Register(new FilterForServiceProviderDisbursementFeesToSelf());
 
             // remove transactions by transaction context, just like messaging does
-            Register(new TransformTransactionByTransactionContext(_debtManagerConnection));
+            Register(new TransformTransactionByTransactionContext(_debtManagerConnectionFactory));
 
             // validate our input against the balance stored in debtsettlement
             Register(new CalculateRunningBalance());
-            Register(new ValidateRunningBalance(_debtSettlementConnection, accountId));
+            Register(new ValidateRunningBalance(_debtSettlementConnectionFactory, accountId));
 
             // update the transactions in debtmanager with our changed values
 
