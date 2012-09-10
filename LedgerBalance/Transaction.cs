@@ -20,6 +20,8 @@ namespace Meracord.Transactions.LedgerBalance
         public int AllocationTypeId { get; set; }
         public DateTime CreationDateTime { get; set; }
         public DateTime LastEditDateTime { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public decimal RemainingBalance { get; set; }
     }
 
     public abstract class ParentTransaction

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Meracord.Transactions.LedgerBalance.Filters
+namespace Meracord.Transactions.LedgerBalance.Operations
 {
-    public class AssessedProcessingFeeTransactionFilter
-        : TransactionFilter
+    public class FilterForAssessedProcessingFee
+        : IOperation<Transaction>
     {
-        public override IEnumerable<Transaction> Process(IEnumerable<Transaction> transactions)
+        public IEnumerable<Transaction> Execute(IEnumerable<Transaction> transactions)
         {
             // get all 638 fees and corresponding 649 transactions, even split 649 fees
             var meracordFees = transactions.Where(x => x.TransactionTypeId == 638).ToList();

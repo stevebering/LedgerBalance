@@ -1,29 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dapper;
+using Meracord.Transactions.LedgerBalance.Operations;
 
 namespace Meracord.Transactions.LedgerBalance.Queries
 {
-    public interface IGetTransactionContextsQuery
-    {
-        IEnumerable<TransactionContext> Execute();
-    }
-
-    public interface IGetCompleteAccountTransactionHistoryQuery
-    {
-        IEnumerable<Transaction> Execute(Guid accountId);
-    }
-
-    public class GetCompleteAccountTransactionHistoryQuery : IGetCompleteAccountTransactionHistoryQuery
+    public class GetCompleteAccountTransactionHistoryQuery
+        : IOperation<Transaction>
     {
         private readonly IDebtSettlementConnection _connection;
+        private readonly Guid _accountId;
 
-        public GetCompleteAccountTransactionHistoryQuery(IDebtSettlementConnection connection)
+        public GetCompleteAccountTransactionHistoryQuery(IDebtSettlementConnection connection, Guid accountId)
         {
             _connection = connection;
+            _accountId = accountId;
         }
 
-        public IEnumerable<Transaction> Execute(Guid accountId)
+        public IEnumerable<Transaction> Execute(IEnumerable<Transaction> input)
         {
             var conn = _connection.Connection;
             conn.Open();
@@ -44,8 +38,10 @@ namespace Meracord.Transactions.LedgerBalance.Queries
                 , t.AllocationTypeId
                 , t.CreationDateTime
                 , t.LastEditDateTime
+                , dbo.fnDateTrunc(case when Receipts.EffectiveDate is not null then Receipts.EffectiveDate else t.CreatedDateTime end) as TransactionDate
 	        FROM VTransactionsLedgerView t WITH (NOLOCK)
 	        INNER JOIN Accounts ON t.AccountId = Accounts.AccountId
+            INNER JOIN Receipts ON t.ReceiptId = Receipts.ReceiptId
             WHERE Accounts.AccountGUID = @AccountGUID
 
         	UNION
@@ -65,11 +61,13 @@ namespace Meracord.Transactions.LedgerBalance.Queries
                 , t.AllocationTypeId
                 , t.CreationDateTime
                 , t.LastEditDateTime
+                , dbo.fnDateTrunc(case when Receipts.EffectiveDate is not null then Receipts.EffectiveDate else t.CreatedDateTime end) as TransactionDate
 	        FROM VTransactionsLedgerView t WITH (NOLOCK)
 	        INNER JOIN Accounts ON t.DisbursementAccountId = Accounts.AccountId
+            INNER JOIN Receipts ON t.ReceiptId = Receipts.ReceiptId
             WHERE Accounts.AccountGUID = @AccountGUID";
 
-            return conn.Query<Transaction>(q, new { AccountGUID = accountId });
+            return conn.Query<Transaction>(q, new { AccountGUID = _accountId });
         }
     }
 }

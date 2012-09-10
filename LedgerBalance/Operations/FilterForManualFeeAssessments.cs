@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Meracord.Transactions.LedgerBalance.Filters
+namespace Meracord.Transactions.LedgerBalance.Operations
 {
-    public class ManualFeeTransactionFilter
-        : TransactionFilter
+    public class FilterForManualFeeAssessments
+        : IOperation<Transaction>
     {
-        public override IEnumerable<Transaction> Process(IEnumerable<Transaction> transactions)
+        public IEnumerable<Transaction> Execute(IEnumerable<Transaction> transactions)
         {
             var manualFees = transactions.Where(t => t.TransactionTypeId == 669);
             var assessedFees = transactions.Where(t => t.TransactionTypeId == 649);
